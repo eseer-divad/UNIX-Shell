@@ -40,7 +40,11 @@
 #include <string.h>
 #include <unistd.h>
 
-// for prompt, not included in starter file
+// for running the starter file code
+#include <stdbool.h>
+#include <sys/wait.h>
+
+// for promptString+, not included in starter file
 #include<stdlib.h>      // stdlib.h library: https://www.ibm.com/docs/en/zos/3.1.0?topic=files-stdlibh-standard-library-functions 
 #include<sys/types.h>   // typedef structs: https://www.ibm.com/docs/en/zos/2.1.0?topic=files-systypesh
 #include<pwd.h>         // man pwd.h: https://www.ibm.com/docs/en/aix/7.2?topic=files-pwdh-file
@@ -62,37 +66,37 @@ void printPrompt();
 void readCommand(char *);
 
 int main(int argc, char *argv[]) {
-   int pid;
-   int status;
-   char cmdLine[MAX_LINE_LEN];
-   struct command_t command;
+    int pid;
+    int status;
+    char cmdLine[MAX_LINE_LEN];
+    struct command_t command;
 
-   while (TRUE) {
-      printPrompt();
-      /* Read the command line and parse it */
-      readCommand(cmdLine);
-      parseCommand(cmdLine, &command);
-      command.argv[command.argc] = NULL;
+    while (true) {
+        printPrompt();
+        /* Read the command line and parse it */
+        readCommand(cmdLine);
+        parseCommand(cmdLine, &command);
+        command.argv[command.argc] = NULL;
 
-	  /*
-	     TODO: if the command is one of the shortcuts you're testing for
-		 either execute it directly or build a new command structure to
-		 execute next
-	  */
-	  
-      /* Create a child process to execute the command */
-      if ((pid = fork()) == 0) {
-         /* Child executing command */
-         execvp(command.name, command.argv);
-	 /* TODO: what happens if you enter an incorrect command? */
-      }
-      /* Wait for the child to terminate */
-      wait(&status); /* EDIT THIS LINE */
-   }
+        /*
+            TODO: if the command is one of the shortcuts you're testing for
+            either execute it directly or build a new command structure to
+            execute next
+        */
+        
+        /* Create a child process to execute the command */
+        if ((pid = fork()) == 0) {
+            /* Child executing command */
+            execvp(command.name, command.argv);
+        /* TODO: what happens if you enter an incorrect command? */
+        }
+        /* Wait for the child to terminate */
+        wait(&status); /* EDIT THIS LINE */
+    }
 
-   /* Shell termination */
-   printf("\n\n shell: Terminating successfully\n");
-   return 0;
+    /* Shell termination */
+    printf("\n\n shell: Terminating successfully\n");
+    return 0;
 }
 
 /* End basic shell */
@@ -132,11 +136,44 @@ int parseCommand(char *cLine, struct command_t *cmd) {
 /* Print prompt and read command functions - Nutt pp. 79-80 */
 
 void printPrompt() {
-   /* Build the prompt string to have the machine name,
+    /* Build the prompt string to have the machine name,
     * current directory, or other desired information
     */
-   promptString = ...; /* EDIT THIS LINE */
-   printf("%s ", promptString);
+
+    char cwd[512];
+    char host[512];
+    struct passwd *passwd;
+    uid_t uid;
+    char *username;
+    char promptString[MAX_LINE_LEN];
+
+    // Get host and cwd, handle errors immediately.
+    if (gethostname(host, sizeof(host)) != 0) {
+        perror("Error on call: gethost()");
+        strcpy("Unknown ", host);
+    }
+    if (getcwd(cwd, sizeof(cwd)) != 0) {
+        perror("Error on call: getcwd()");
+        strcpy("Unknown ", cwd);
+    }
+
+    // Get username
+    uid = geteuid();
+    passwd = getpwuid(uid);
+    if (!passwd) {
+        username = "anon";
+    } else {
+        username = passwd->pw_name;
+    }
+
+    // Construct & Print promptString
+    int len = snprintf(promptString, sizeof(promptString), "[%s@%s %s]> ", username, host, cwd);   
+    if (len >= sizeof(promptString)) {
+        // Truncate the output or consider dynamically allocating more space 
+        promptString[sizeof(promptString) - 1] = '\0'; // Ensure null-termination
+    }
+    printf("%s ", promptString);
+
 }
 
 void readCommand(char *buffer) {
