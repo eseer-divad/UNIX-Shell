@@ -35,9 +35,15 @@
  * and execv. 
  */
 
+// included in starter file
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+// for prompt, not included in starter file
+#include<stdlib.h>      // stdlib.h library: https://www.ibm.com/docs/en/zos/3.1.0?topic=files-stdlibh-standard-library-functions 
+#include<sys/types.h>   // typedef structs: https://www.ibm.com/docs/en/zos/2.1.0?topic=files-systypesh
+#include<pwd.h>         // man pwd.h: https://www.ibm.com/docs/en/aix/7.2?topic=files-pwdh-file
 
 #define MAX_ARGS		64
 #define MAX_ARG_LEN		16
