@@ -82,7 +82,39 @@ Standalone general-purpose machines + internet.
 
 #### Virtual / Cloud Computing Systems
 
-Virtualization: Parent (Host) OS + Guest OSs, all compiled natively.
+* Virtualization: Parent (Host) OS + Guest OSs, all compiled natively.
+* Virtual Machine Manager: Virtualbox, ESXi, etc.
+* Cloud computing *uses* virtualization as a basis for its functionality.
+    - Delivers computing, storage, or apps across network.
+    - EC2, various cloud VMs.
+* Types of Cloud Computing:
+    - Public, private, and hybrid cloud.
+    - SaaS, PaaS, IaaS
+* Composed of VMM, a traditional OS, and cloud management tools.
+    - Load Balancers
+    - Firewalls
 
-Virtual Machine Manager: Virtualbox, ESXi, etc.
+#### Real-Time Embedded Systems
+
+* Uses all sorts of weird OSs.
+* Cars, fridges, phones (non-smart), elevators, card readers.
+* Embedded Java or other languages.
+
+---
+
+#### System Software:
+* Middleware: common software to all apps, layer between OS and apps.
+
+### Four Views of the OS:
+* The OS is an extended machine (hides details for abstraction.)
+* The OS is a virtual machine. 
+* The OS is a resource manager.
+* The OS is a control program.
+
+### Multiprogramming: 
+Load and execute multiple programs utilizing time-multiplexed CPU, and space-multiplexed memory
+* technique for sharing the CPU among many processes
+* process can be blocked on I/O while others need to complete
+* while one process remains blocked, another should run
+
 
