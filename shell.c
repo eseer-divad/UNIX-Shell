@@ -139,41 +139,15 @@ void printPrompt() {
     /* Build the prompt string to have the machine name,
     * current directory, or other desired information
     */
-
-    char cwd[512];
-    char host[512];
-    struct passwd *passwd;
-    uid_t uid;
-    char *username;
-    char promptString[MAX_LINE_LEN];
-
-    // Get host and cwd, handle errors immediately.
-    if (gethostname(host, sizeof(host)) != 0) {
-        perror("Error on call: gethost()");
-        strcpy("Unknown ", host);
-    }
-    if (getcwd(cwd, sizeof(cwd)) != 0) {
-        perror("Error on call: getcwd()");
-        strcpy("Unknown ", cwd);
-    }
-
-    // Get username
-    uid = geteuid();
-    passwd = getpwuid(uid);
-    if (!passwd) {
-        username = "anon";
-    } else {
-        username = passwd->pw_name;
-    }
-
+    char *user = "dcr54";
+    char prompt[MAX_LINE_LEN];
     // Construct & Print promptString
-    int len = snprintf(promptString, sizeof(promptString), "[%s@%s %s]> ", username, host, cwd);   
-    if (len >= sizeof(promptString)) {
-        // Truncate the output or consider dynamically allocating more space 
-        promptString[sizeof(promptString) - 1] = '\0'; // Ensure null-termination
+    int len = snprintf(prompt, sizeof(prompt), "linux(%s)|>", user);   
+    if (len >= sizeof(prompt)) {
+        // Ensure null-terminator
+        prompt[sizeof(prompt) - 1] = '\0'; 
     }
-    printf("%s ", promptString);
-
+    printf("%s ", prompt);
 }
 
 void readCommand(char *buffer) {
