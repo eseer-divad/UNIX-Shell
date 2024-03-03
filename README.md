@@ -30,7 +30,7 @@ While David's shell is running, execute commands like `Q` below just the same wa
 
 ## 3 Shell Functions / Reference
 
-When David's shell is running, instead of getting scared and hitting `Q` this time, lets try entering the command `H` and reading over:
+When David's shell is running, instead of getting scared and immediately hitting `Q` this time, lets try entering the command `H` and reading over:
 
 ```
 A Simple Linux Shellp:
