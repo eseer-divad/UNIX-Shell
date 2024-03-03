@@ -110,14 +110,27 @@ int main(int argc, char *argv[]) {
             }
 
         } 
-        // =========== FILE MANAGEMENT COMMANDS =========== 
+        // =========== FILE MANAGEMENT COMMANDS ===========
+        /*
         else if (strcmp(command.name, "C") == 0) {
             if (command.argc >= 3) {
-                char posixCommand[128];
-                snprintf(posixCommand, sizeof(posixCommand), "cp %s %s", command.argv[1], command.argv[2]);
-                system(posixCommand);
+                pid_t pid2 = fork();
+                if (pid2 == 0) {
+                    // begat child
+                    char *args[] = {"cp", command.argv[1], command.argv[2], NULL};
+                    execvp("cp", args);
+                    // fails if reaches this line
+                    fprintf(stderr, "copy failed\n");
+                    exit(EXIT_FAILURE);
+                } else if (pid2 > 0) {
+                    wait(NULL);
+                } else {
+                    fprintf(stderr, "error in copy fork.\n");
+                }
+            } else {
+                fprintf(stderr, "Usage: C [file1] [file2]\n");
             }
-        }
+        }*/ 
         else if (strcmp(command.name, "D") == 0) {
             if (command.argc >= 2) {
                 char posixCommand[128];
