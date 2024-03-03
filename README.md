@@ -10,19 +10,21 @@
 
 After decompression, have your system console open inside of the folder, same folder as the one this README is in. After hitting `ls` you should see:
 
-* a.out (executable)
+* Makefile
+* shell (executable)
+* shell.o (object file)
 * README.md (this file you're reading)
 * shell.c (source code)
 
-If you'd like to recompile the 'shell.c' file, whether you modify it, or find me a untrustworthy author, run: `gcc shell.c`.
+If you'd like to recompile the 'shell.c' file, whether you modify it, or find me a untrustworthy author, run: `make all` in your terminal.
 
-This `gcc shell.c` command creates an executable with the default name 'a.out' which will naturally overwrite any previous file of the same name. To start the shell, run `./a.out` if using the default executable name as instructed.
+This `make all` command creates an executable with the name 'shell' which will naturally overwrite any previous file of the same name. To start the shell SAFELY, enter `make run`.
 
 ## 2 - How to use David's Shell
 
 David's shell has several more working commands than the original Linux shell - used in many difficult computers today - giving the software a steep learning curve.
 
-When you run the executable 'a.out', your shell makes a child shell: David's shell. Until you type in and hit `enter` the command `Q`, you'll keep running the child shell. Once you quit, the child dies abruptly and you'll return to the shell you've run `./a.out`.
+When you run the command `make run`, your shell makes a child shell: David's shell. Until you type in and hit `enter` the command `Q`, you'll keep running the child shell. Once you quit, the child dies abruptly and you'll return to the shell you've run `make run`.
 
 These things are happening all in what seems like one window, because the shell is actually just broadcasting data through your system's terminal emulator. The shell is a program and can be a running process.
 
@@ -56,3 +58,13 @@ A Simple Linux Shellp:
 ======================================================================
 ```
 
+Internal commands are ones we've crafted in-house for David's Shell.
+
+External commands are from your own system or imagination, *our developer cannot say for certain these external commands won't harm your computer.*
+
+## 4 CITATIONS
+
+* IBM Documentation Site: <br> z/OS C/C++ Runtime Library Reference
+https://www.ibm.com/docs/en/zos/3.1.0?topic=files-cc-header
+
+* CPSC 489 DevOps: Project 1 - "Makefile" (Submitted 02/12/14)
