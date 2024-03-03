@@ -140,8 +140,31 @@ int main(int argc, char *argv[]) {
                 snprintf(posixCommand, sizeof(posixCommand), "more %s", command.argv[1], command.argv[2]);
                 system(posixCommand);
             }
-        }        
-        else {
+        }
+        // simple manual print statements
+        else if (strcmp(command.name, "H") == 0) {
+            // printf("======================================================================\n");
+            printf("\nA Simple Linux Shellp:\n");
+            printf("======================\n");
+            printf(">C [file1] [file2]\t- Copy [file1] + Paste to [file2].\n");
+            printf(">D [file]\t\t- Delete [file].\n");
+            printf(">E [comment]\t\t- Print [comment] (echo).\n");
+            printf(">H\t\t\t- Help me!\n");
+            printf(">L\t\t\t- List current directory contents, no arguments.\n");
+            printf(">M [file]\t\t- Create [file] w/ nano, which is a choice...\n");
+            printf(">P [file]\t\t- Display the contents of [file].\n");
+            printf(">Q\t\t\t- Quit.\n");
+            printf(">S\t\t\t- Launches firefox.\n");
+            printf(">W\t\t\t- Clears the console.\n");
+            printf(">X [program]\t\t- Execute [program].\n");
+            printf("======================================================================\n");
+            printf("\n3 BASIC RULES:\n");
+            printf("==============\n");
+            printf("1.) Internal commands are case sensitive.\n");
+            printf("2.) Provide ONLY the necessary arguments, or use an external command.\n");
+            printf("3.) Unlisted/Unrecognized commands ARE external commands.\n");
+            printf("======================================================================\n");
+        } else {
             /* Create a child process to execute the command */
             if ((pid = fork()) == 0) {
                 execvp(command.name, command.argv);
@@ -149,7 +172,7 @@ int main(int argc, char *argv[]) {
             }
         }
         /* Wait for the child to terminate */
-        wait(&status); /* EDIT THIS LINE */
+        wait(&status);
     }
 
     /* Shell termination */
