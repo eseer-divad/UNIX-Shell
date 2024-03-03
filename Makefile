@@ -1,4 +1,4 @@
-# David's Shell Makefile, 24 thread limit.
+# David's Shell Makefile, 48 thread limit.
 CC=gcc
 CFLAGS=-Wall -g
 all: shell
@@ -17,5 +17,5 @@ clean:
 
 # run target
 run: all
-	ulimit -u 48; \
+	ulimit -u 256; \
 	./shell

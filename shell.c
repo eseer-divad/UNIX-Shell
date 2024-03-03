@@ -64,7 +64,6 @@ void printPrompt();
 void readCommand(char *);
 
 int main(int argc, char *argv[]) {
-    int pid;
     int status;
     char cmdLine[MAX_LINE_LEN];
     struct command_t command;
@@ -80,7 +79,17 @@ int main(int argc, char *argv[]) {
         if(strcmp(command.name, "Q") == 0) {
             exit(0);
         } else if (strcmp(command.name, "W") == 0) {
-            system("clear");
+            int pid = fork();
+            if (pid == 0) {
+                printf("Execute clear");
+                execvp("clear", NULL);
+                perror("W exec failure"); // shouldn't fire
+                exit(1);
+            } else if (pid < 0) {
+                perror("W fork failure");
+            } else {
+                wait(NULL); // waits for clear to finish
+            }
         } else if (strcmp(command.name, "S") == 0) {
             // Doesn't wait for the process to end. 
             system("firefox &");  
@@ -105,6 +114,7 @@ int main(int argc, char *argv[]) {
             }
             command.argc -= 1;
             // execute program
+            int pid;
             if ((pid = fork()) == 0) {
                 execvp(command.name, &command.argv[1]);
             }
@@ -177,6 +187,7 @@ int main(int argc, char *argv[]) {
             printf("======================================================================\n");
         } else {
             /* Create a child process to execute the command */
+            int pid;
             if ((pid = fork()) == 0) {
                 execvp(command.name, command.argv);
             /* TODO: what happens if you enter an incorrect command? */
