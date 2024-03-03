@@ -44,10 +44,10 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 
-// for promptString+, not included in starter file
+// not included in starter file
 #include<stdlib.h>      // stdlib.h library: https://www.ibm.com/docs/en/zos/3.1.0?topic=files-stdlibh-standard-library-functions 
-#include<sys/types.h>   // typedef structs: https://www.ibm.com/docs/en/zos/2.1.0?topic=files-systypesh
-#include<pwd.h>         // man pwd.h: https://www.ibm.com/docs/en/aix/7.2?topic=files-pwdh-file
+// #include<sys/types.h>   // typedef structs: https://www.ibm.com/docs/en/zos/2.1.0?topic=files-systypesh
+// #include<pwd.h>         // man pwd.h: https://www.ibm.com/docs/en/aix/7.2?topic=files-pwdh-file
 
 #define MAX_ARGS		64
 #define MAX_ARG_LEN		16
@@ -78,17 +78,75 @@ int main(int argc, char *argv[]) {
         parseCommand(cmdLine, &command);
         command.argv[command.argc] = NULL;
 
-        /*
-            TODO: if the command is one of the shortcuts you're testing for
-            either execute it directly or build a new command structure to
-            execute next
-        */
-        
-        /* Create a child process to execute the command */
-        if ((pid = fork()) == 0) {
-            /* Child executing command */
-            execvp(command.name, command.argv);
-        /* TODO: what happens if you enter an incorrect command? */
+        // =========== GENERAL COMMANDS =========== 
+        if(strcmp(command.name, "Q") == 0) {
+            exit(0);
+        } else if (strcmp(command.name, "W") == 0) {
+            system("clear");
+        } else if (strcmp(command.name, "S") == 0) {
+            // Doesn't wait for the process to end. 
+            system("firefox &");  
+        } else if (strcmp(command.name, "L") == 0) {
+            printf("\n");
+            system("pwd");
+            printf("\n");
+            system("ls -l");
+            continue;
+        } else if (strcmp(command.name, "E") == 0) {
+            if (command.argc > 1) {
+                for (int i = 1; i < command.argc; i++) {
+                    printf("%s", command.argv[i]);
+                    if (i < command.argc - 1) {
+                        printf(" ");
+                    }
+                }
+            } printf("\n");
+        } else if (strcmp(command.name, "X") == 0) {
+            for (int i = 1; i < command.argc; i++) {
+                command.argv[i] = command.argv[i+1];
+            }
+            command.argc -= 1;
+            // execute program
+            if ((pid = fork()) == 0) {
+                execvp(command.name, &command.argv[1]);
+            }
+
+        } 
+        // =========== FILE MANAGEMENT COMMANDS =========== 
+        else if (strcmp(command.name, "C") == 0) {
+            if (command.argc >= 3) {
+                char posixCommand[128];
+                snprintf(posixCommand, sizeof(posixCommand), "cp %s %s", command.argv[1], command.argv[2]);
+                system(posixCommand);
+            }
+        }
+        else if (strcmp(command.name, "D") == 0) {
+            if (command.argc >= 2) {
+                char posixCommand[128];
+                snprintf(posixCommand, sizeof(posixCommand), "rm %s", command.argv[1], command.argv[2]);
+                system(posixCommand);
+            }
+        }
+        else if (strcmp(command.name, "M") == 0) {
+            if (command.argc >= 2) {
+                char posixCommand[128];
+                snprintf(posixCommand, sizeof(posixCommand), "nano %s", command.argv[1], command.argv[2]);
+                system(posixCommand);
+            }
+        }
+        else if (strcmp(command.name, "P") == 0) {
+            if (command.argc >= 2) {
+                char posixCommand[128];
+                snprintf(posixCommand, sizeof(posixCommand), "more %s", command.argv[1], command.argv[2]);
+                system(posixCommand);
+            }
+        }        
+        else {
+            /* Create a child process to execute the command */
+            if ((pid = fork()) == 0) {
+                execvp(command.name, command.argv);
+            /* TODO: what happens if you enter an incorrect command? */
+            }
         }
         /* Wait for the child to terminate */
         wait(&status); /* EDIT THIS LINE */
@@ -143,10 +201,10 @@ void printPrompt() {
     char prompt[MAX_LINE_LEN];
     // Construct & Print promptString
     int len = snprintf(prompt, sizeof(prompt), "linux(%s)|>", user);   
-    if (len >= sizeof(prompt)) {
-        // Ensure null-terminator
+/*    if (len >= sizeof(prompt)) {
+        // Ensure null-terminator 
         prompt[sizeof(prompt) - 1] = '\0'; 
-    }
+    }*/
     printf("%s ", prompt);
 }
 
