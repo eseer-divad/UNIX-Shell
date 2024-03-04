@@ -225,7 +225,8 @@ int main(int argc, char *argv[]) {
             int pid;
             if ((pid = fork()) == 0) {
                 execvp(command.name, command.argv);
-            /* TODO: what happens if you enter an incorrect command? */
+                perror("External/unrecognized command - failure\n");
+                exit(1);
             }
         }
         /* Wait for the child to terminate */
