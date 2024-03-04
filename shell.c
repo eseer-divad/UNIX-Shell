@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(command.name, "W") == 0) {
             int pid = fork();
             if (pid == 0) {
-                printf("Execute clear");
+                // printf("Execute clear");
                 execvp("clear", NULL);
                 perror("W exec failure"); // shouldn't fire
                 exit(1);
@@ -91,13 +91,37 @@ int main(int argc, char *argv[]) {
                 wait(NULL); // waits for clear to finish
             }
         } else if (strcmp(command.name, "S") == 0) {
-            // Doesn't wait for the process to end. 
-            system("firefox &");  
+            int pid = fork();
+            if (pid == 0) {
+                execvp("firefox", NULL);
+                perror("S exec failure"); // shouldn't fire
+                exit(1);
+            } else if (pid < 0) {
+                perror("W fork failure");
+            }
+            // No else: doesn't wait for the process to end.     
         } else if (strcmp(command.name, "L") == 0) {
-            printf("\n");
-            system("pwd");
-            printf("\n");
-            system("ls -l");
+            // print working directory
+            FILE *pwd_output = popen("pwd", "r");
+            if (pwd_output == NULL) {
+                perror("L pwd popen failure");
+            } else {
+                char buffer[512];
+                fgets(buffer, sizeof(buffer), pwd_output);
+                printf("\n%s\n\n", buffer);
+                pclose(pwd_output);
+            }
+            // load arguments & execute ls -l
+            FILE *ls_output = popen("ls -l", "r");
+            if (ls_output == NULL) {
+                perror("L ls popen failure");
+            } else {
+                char buffer[4096];
+                while (fgets(buffer, sizeof(buffer), ls_output) != NULL) {
+                    printf("%s", buffer);
+                }
+                pclose(ls_output);
+            }
             continue;
         } else if (strcmp(command.name, "E") == 0) {
             if (command.argc > 1) {
@@ -121,49 +145,55 @@ int main(int argc, char *argv[]) {
 
         } 
         // =========== FILE MANAGEMENT COMMANDS ===========
-        /*
         else if (strcmp(command.name, "C") == 0) {
             if (command.argc >= 3) {
-                pid_t pid2 = fork();
-                if (pid2 == 0) {
-                    // begat child
-                    char *args[] = {"cp", command.argv[1], command.argv[2], NULL};
-                    execvp("cp", args);
-                    // fails if reaches this line
-                    fprintf(stderr, "copy failed\n");
-                    exit(EXIT_FAILURE);
-                } else if (pid2 > 0) {
-                    wait(NULL);
-                } else {
-                    fprintf(stderr, "error in copy fork.\n");
+                int pid = fork();
+                if (pid == 0) {
+                    char *cp_args[] = {"cp", command.argv[1], command.argv[2], NULL};
+                    execvp("cp", cp_args);
+                    perror("C execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("C fork failure");
                 }
-            } else {
-                fprintf(stderr, "Usage: C [file1] [file2]\n");
             }
-        }*/ 
-        else if (strcmp(command.name, "D") == 0) {
+        } else if (strcmp(command.name, "D") == 0) {
             if (command.argc >= 2) {
-                char posixCommand[128];
-                snprintf(posixCommand, sizeof(posixCommand), "rm %s", command.argv[1], command.argv[2]);
-                system(posixCommand);
+                int pid = fork();
+                if (pid == 0) {
+                    char *rm_args[] = {"rm", command.argv[1], NULL};
+                    execvp("rm", rm_args);
+                    perror("D execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("D fork failure");
+                }
             }
-        }
-        else if (strcmp(command.name, "M") == 0) {
+        } else if (strcmp(command.name, "M") == 0) {
             if (command.argc >= 2) {
-                char posixCommand[128];
-                snprintf(posixCommand, sizeof(posixCommand), "nano %s", command.argv[1], command.argv[2]);
-                system(posixCommand);
+                int pid = fork();
+                if (pid == 0) {
+                    char *nano_args[] = {"nano", command.argv[1], NULL};
+                    execvp("nano", nano_args);
+                    perror("M execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("M fork failure");
+                }
             }
-        }
-        else if (strcmp(command.name, "P") == 0) {
+        } else if (strcmp(command.name, "P") == 0) {
             if (command.argc >= 2) {
-                char posixCommand[128];
-                snprintf(posixCommand, sizeof(posixCommand), "more %s", command.argv[1], command.argv[2]);
-                system(posixCommand);
+                int pid = fork();
+                if (pid == 0) {
+                    char *more_args[] = {"more", command.argv[1], NULL};
+                    execvp("more", more_args);
+                    perror("P execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("P fork failure");
+                }
             }
-        }
-        // simple manual print statements
-        else if (strcmp(command.name, "H") == 0) {
+        } else if (strcmp(command.name, "H") == 0) {  // simple manual: printf() statements
             // printf("======================================================================\n");
             printf("\nA Simple Linux Shellp:\n");
             printf("======================\n");
