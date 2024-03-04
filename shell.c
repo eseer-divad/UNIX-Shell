@@ -79,10 +79,12 @@ int main(int argc, char *argv[]) {
         if(strcmp(command.name, "Q") == 0) {
             exit(0);
         } else if (strcmp(command.name, "W") == 0) {
+            // implementation is simpler for me if pid
+            // becomes more localized.
             int pid = fork();
             if (pid == 0) {
-                // printf("Execute clear");
-                execvp("clear", NULL);
+                char *clear_args[] = {"clear", NULL};
+                execvp("clear", clear_args);
                 perror("W exec failure"); // shouldn't fire
                 exit(1);
             } else if (pid < 0) {
@@ -93,7 +95,8 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(command.name, "S") == 0) {
             int pid = fork();
             if (pid == 0) {
-                execvp("firefox", NULL);
+                char *firefox_args[] = {"firefox", NULL};
+                execvp("firefox", firefox_args);
                 perror("S exec failure"); // shouldn't fire
                 exit(1);
             } else if (pid < 0) {
@@ -101,6 +104,7 @@ int main(int argc, char *argv[]) {
             }
             // No else: doesn't wait for the process to end.     
         } else if (strcmp(command.name, "L") == 0) {
+            // compile & print two separate outputs. Run in sequence.
             // print working directory
             FILE *pwd_output = popen("pwd", "r");
             if (pwd_output == NULL) {
@@ -108,7 +112,7 @@ int main(int argc, char *argv[]) {
             } else {
                 char buffer[512];
                 fgets(buffer, sizeof(buffer), pwd_output);
-                printf("\n%s\n\n", buffer);
+                printf("\n%s\n", buffer);
                 pclose(pwd_output);
             }
             // load arguments & execute ls -l
@@ -125,6 +129,8 @@ int main(int argc, char *argv[]) {
             continue;
         } else if (strcmp(command.name, "E") == 0) {
             if (command.argc > 1) {
+                // takes arguments as spaces between substrings
+                // takes the next argument and prefixes a space
                 for (int i = 1; i < command.argc; i++) {
                     printf("%s", command.argv[i]);
                     if (i < command.argc - 1) {
@@ -142,15 +148,14 @@ int main(int argc, char *argv[]) {
             if ((pid = fork()) == 0) {
                 execvp(command.name, &command.argv[1]);
             }
-
         } 
         // =========== FILE MANAGEMENT COMMANDS ===========
         else if (strcmp(command.name, "C") == 0) {
             if (command.argc >= 3) {
                 int pid = fork();
                 if (pid == 0) {
-                    char *cp_args[] = {"cp", command.argv[1], command.argv[2], NULL};
-                    execvp("cp", cp_args);
+                    char *C_args[] = {"cp", command.argv[1], command.argv[2], NULL};
+                    execvp("cp", C_args);   // execute "cp" with arguments array
                     perror("C execvp failure");
                     exit(1);
                 } else if (pid < 0) {
@@ -161,8 +166,8 @@ int main(int argc, char *argv[]) {
             if (command.argc >= 2) {
                 int pid = fork();
                 if (pid == 0) {
-                    char *rm_args[] = {"rm", command.argv[1], NULL};
-                    execvp("rm", rm_args);
+                    char *D_args[] = {"rm", command.argv[1], NULL};
+                    execvp("rm", D_args);   // execute "rm" with arguments array
                     perror("D execvp failure");
                     exit(1);
                 } else if (pid < 0) {
@@ -173,8 +178,8 @@ int main(int argc, char *argv[]) {
             if (command.argc >= 2) {
                 int pid = fork();
                 if (pid == 0) {
-                    char *nano_args[] = {"nano", command.argv[1], NULL};
-                    execvp("nano", nano_args);
+                    char *M_args[] = {"nano", command.argv[1], NULL};
+                    execvp("nano", M_args); // execute "nano" with arguments array
                     perror("M execvp failure");
                     exit(1);
                 } else if (pid < 0) {
@@ -185,8 +190,8 @@ int main(int argc, char *argv[]) {
             if (command.argc >= 2) {
                 int pid = fork();
                 if (pid == 0) {
-                    char *more_args[] = {"more", command.argv[1], NULL};
-                    execvp("more", more_args);
+                    char *P_args[] = {"more", command.argv[1], NULL};
+                    execvp("more", P_args); // execute "more" with arguments array
                     perror("P execvp failure");
                     exit(1);
                 } else if (pid < 0) {
@@ -275,7 +280,7 @@ void printPrompt() {
     char *user = "dcr54";
     char prompt[MAX_LINE_LEN];
     // Construct & Print promptString
-    int len = snprintf(prompt, sizeof(prompt), "linux(%s)|>", user);   
+    snprintf(prompt, sizeof(prompt), "linux(%s)|>", user);   
     printf("%s ", prompt);
 }
 
