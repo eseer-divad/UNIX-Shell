@@ -35,17 +35,12 @@
  * and execv. 
  */
 
-// included in starter file
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-// for running the starter file code
 #include <stdbool.h>
 #include <sys/wait.h>
-
-// not included in starter file
-#include<stdlib.h>      // stdlib.h library: https://www.ibm.com/docs/en/zos/3.1.0?topic=files-stdlibh-standard-library-functions 
+#include<stdlib.h>
 
 #define MAX_ARGS		64
 #define MAX_ARG_LEN		16
