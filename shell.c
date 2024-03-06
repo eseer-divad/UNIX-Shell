@@ -44,10 +44,8 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 
-// for promptString+, not included in starter file
+// not included in starter file
 #include<stdlib.h>      // stdlib.h library: https://www.ibm.com/docs/en/zos/3.1.0?topic=files-stdlibh-standard-library-functions 
-#include<sys/types.h>   // typedef structs: https://www.ibm.com/docs/en/zos/2.1.0?topic=files-systypesh
-#include<pwd.h>         // man pwd.h: https://www.ibm.com/docs/en/aix/7.2?topic=files-pwdh-file
 
 #define MAX_ARGS		64
 #define MAX_ARG_LEN		16
@@ -66,7 +64,6 @@ void printPrompt();
 void readCommand(char *);
 
 int main(int argc, char *argv[]) {
-    int pid;
     int status;
     char cmdLine[MAX_LINE_LEN];
     struct command_t command;
@@ -78,20 +75,162 @@ int main(int argc, char *argv[]) {
         parseCommand(cmdLine, &command);
         command.argv[command.argc] = NULL;
 
-        /*
-            TODO: if the command is one of the shortcuts you're testing for
-            either execute it directly or build a new command structure to
-            execute next
-        */
-        
-        /* Create a child process to execute the command */
-        if ((pid = fork()) == 0) {
-            /* Child executing command */
-            execvp(command.name, command.argv);
-        /* TODO: what happens if you enter an incorrect command? */
+        // =========== GENERAL COMMANDS =========== 
+        if(strcmp(command.name, "Q") == 0) {
+            exit(0);
+        } else if (strcmp(command.name, "W") == 0) {
+            // implementation is simpler for me if pid
+            // becomes more localized.
+            int pid = fork();
+            if (pid == 0) {
+                char *clear_args[] = {"clear", NULL};
+                execvp("clear", clear_args);
+                perror("W exec failure"); // shouldn't fire
+                exit(1);
+            } else if (pid < 0) {
+                perror("W fork failure");
+            } else {
+                wait(NULL); // waits for clear to finish
+            }
+        } else if (strcmp(command.name, "S") == 0) {
+            int pid = fork();
+            if (pid == 0) {
+                char *firefox_args[] = {"firefox", NULL};
+                execvp("firefox", firefox_args);
+                perror("S exec failure"); // shouldn't fire
+                exit(1);
+            } else if (pid < 0) {
+                perror("W fork failure");
+            }
+            // No else: doesn't wait for the process to end.     
+        } else if (strcmp(command.name, "L") == 0) {
+            // compile & print two separate outputs. Run in sequence.
+            // print working directory
+            FILE *pwd_output = popen("pwd", "r");
+            if (pwd_output == NULL) {
+                perror("L pwd popen failure");
+            } else {
+                char buffer[512];
+                fgets(buffer, sizeof(buffer), pwd_output);
+                printf("\n%s\n", buffer);
+                pclose(pwd_output);
+            }
+            // load arguments & execute ls -l
+            FILE *ls_output = popen("ls -l", "r");
+            if (ls_output == NULL) {
+                perror("L ls popen failure");
+            } else {
+                char buffer[4096];
+                while (fgets(buffer, sizeof(buffer), ls_output) != NULL) {
+                    printf("%s", buffer);
+                }
+                pclose(ls_output);
+            }
+            continue;
+        } else if (strcmp(command.name, "E") == 0) {
+            if (command.argc > 1) {
+                // takes arguments as spaces between substrings
+                // takes the next argument and prefixes a space
+                for (int i = 1; i < command.argc; i++) {
+                    printf("%s", command.argv[i]);
+                    if (i < command.argc - 1) {
+                        printf(" ");
+                    }
+                }
+            } printf("\n");
+        } else if (strcmp(command.name, "X") == 0) {
+            for (int i = 1; i < command.argc; i++) {
+                command.argv[i] = command.argv[i+1];
+            }
+            command.argc -= 1;
+            // execute program
+            int pid;
+            if ((pid = fork()) == 0) {
+                execvp(command.name, &command.argv[1]);
+            }
+        } 
+        // =========== FILE MANAGEMENT COMMANDS ===========
+        else if (strcmp(command.name, "C") == 0) {
+            if (command.argc >= 3) {
+                int pid = fork();
+                if (pid == 0) {
+                    char *C_args[] = {"cp", command.argv[1], command.argv[2], NULL};
+                    execvp("cp", C_args);   // execute "cp" with arguments array
+                    perror("C execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("C fork failure");
+                }
+            }
+        } else if (strcmp(command.name, "D") == 0) {
+            if (command.argc >= 2) {
+                int pid = fork();
+                if (pid == 0) {
+                    char *D_args[] = {"rm", command.argv[1], NULL};
+                    execvp("rm", D_args);   // execute "rm" with arguments array
+                    perror("D execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("D fork failure");
+                }
+            }
+        } else if (strcmp(command.name, "M") == 0) {
+            if (command.argc >= 2) {
+                int pid = fork();
+                if (pid == 0) {
+                    char *M_args[] = {"nano", command.argv[1], NULL};
+                    execvp("nano", M_args); // execute "nano" with arguments array
+                    perror("M execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("M fork failure");
+                }
+            }
+        } else if (strcmp(command.name, "P") == 0) {
+            if (command.argc >= 2) {
+                int pid = fork();
+                if (pid == 0) {
+                    char *P_args[] = {"more", command.argv[1], NULL};
+                    execvp("more", P_args); // execute "more" with arguments array
+                    perror("P execvp failure");
+                    exit(1);
+                } else if (pid < 0) {
+                    perror("P fork failure");
+                }
+            }
+        } else if (strcmp(command.name, "H") == 0) {  // simple manual: printf() statements
+            // printf("======================================================================\n");
+            printf("\nA Simple Linux Shellp:\n");
+            printf("======================\n");
+            printf(">C [file1] [file2]\t- Copy [file1] + Paste to [file2].\n");
+            printf(">D [file]\t\t- Delete [file].\n");
+            printf(">E [comment]\t\t- Print [comment] (echo).\n");
+            printf(">H\t\t\t- Help me!\n");
+            printf(">L\t\t\t- List current directory contents, no arguments.\n");
+            printf(">M [file]\t\t- Create [file] w/ nano, which is a choice...\n");
+            printf(">P [file]\t\t- Display the contents of [file].\n");
+            printf(">Q\t\t\t- Quit.\n");
+            printf(">S\t\t\t- Launches firefox.\n");
+            printf(">W\t\t\t- Clears the console.\n");
+            printf(">X [program]\t\t- Execute [program].\n");
+            printf("======================================================================\n");
+            printf("\n3 BASIC RULES:\n");
+            printf("==============\n");
+            printf("1.) Internal commands are case sensitive.\n");
+            printf("2.) Provide ONLY the necessary arguments, or use an external command.\n");
+            printf("3.) Unlisted/Unrecognized commands ARE external commands.\n");
+            printf("======================================================================\n");
+        } else {
+            /* Create a child process to execute the command */
+            int pid;
+            if ((pid = fork()) == 0) {
+                execvp(command.name, command.argv);
+                perror("External/unrecognized command - failure\n");
+                exit(1);
+            }
         }
         /* Wait for the child to terminate */
-        wait(&status); /* EDIT THIS LINE */
+        wait(&status);
     }
 
     /* Shell termination */
@@ -139,41 +278,11 @@ void printPrompt() {
     /* Build the prompt string to have the machine name,
     * current directory, or other desired information
     */
-
-    char cwd[512];
-    char host[512];
-    struct passwd *passwd;
-    uid_t uid;
-    char *username;
-    char promptString[MAX_LINE_LEN];
-
-    // Get host and cwd, handle errors immediately.
-    if (gethostname(host, sizeof(host)) != 0) {
-        perror("Error on call: gethost()");
-        strcpy("Unknown ", host);
-    }
-    if (getcwd(cwd, sizeof(cwd)) != 0) {
-        perror("Error on call: getcwd()");
-        strcpy("Unknown ", cwd);
-    }
-
-    // Get username
-    uid = geteuid();
-    passwd = getpwuid(uid);
-    if (!passwd) {
-        username = "anon";
-    } else {
-        username = passwd->pw_name;
-    }
-
+    char *user = "dcr54";
+    char prompt[MAX_LINE_LEN];
     // Construct & Print promptString
-    int len = snprintf(promptString, sizeof(promptString), "[%s@%s %s]> ", username, host, cwd);   
-    if (len >= sizeof(promptString)) {
-        // Truncate the output or consider dynamically allocating more space 
-        promptString[sizeof(promptString) - 1] = '\0'; // Ensure null-termination
-    }
-    printf("%s ", promptString);
-
+    snprintf(prompt, sizeof(prompt), "linux(%s)|>", user);   
+    printf("%s ", prompt);
 }
 
 void readCommand(char *buffer) {
