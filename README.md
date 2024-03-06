@@ -1,5 +1,3 @@
-# O.S. Lab 1: A Simple Linux Shell (by: David Reese (dcr54))
-
 ## Table of Contents:
 1. a step-by-step description of how to compile this source code and run this shell,
 2. an explanation of how to use this shell,
