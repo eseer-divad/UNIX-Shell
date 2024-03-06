@@ -1,4 +1,4 @@
-# David's Shell Makefile, 256 thread limit.
+# Makefile, 256 thread limit.
 CC=gcc
 CFLAGS=-Wall -g
 all: shell
