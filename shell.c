@@ -15,13 +15,6 @@
 //   writes anything during the discussion or modifies any computer
 //   file during the discussion.
 //
-// - I have violated neither the spirit nor letter of these restrictions.
-//
-//
-//
-// Signed:_David_Reese__________________________ Date:_2024:02:26__
-
-// 3460:426 Lab 1 - Basic C shell rev. 9/10/2020
 
 /* Basic shell */
 
