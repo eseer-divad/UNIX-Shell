@@ -1,33 +1,3 @@
-// ACADEMIC INTEGRITY PLEDGE
-//
-// - I have not used source code obtained from another student nor
-//   any other unauthorized source, either modified or unmodified.
-//
-// - All source code and documentation used in my program is either
-//   my original work or was derived by me from the source code
-//   published in the textbook for this course or presented in
-//   class.
-//
-// - I have not discussed coding details about this project with
-//   anyone other than my instructor. I understand that I may discuss
-//   the concepts of this program with other students and that another
-//   student may help me debug my program so long as neither of us
-//   writes anything during the discussion or modifies any computer
-//   file during the discussion.
-//
-
-/* Basic shell */
-
-/*
- * This is a very minimal shell. It finds an executable in the
- * PATH, then loads it and executes it (using execv). Since
- * it uses "." (dot) as a separator, it cannot handle file
- * names like "minishell.h"
- *
- * The focus on this exercise is to use fork, PATH variables,
- * and execv. 
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
