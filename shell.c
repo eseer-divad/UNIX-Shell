@@ -1,5 +1,6 @@
 
-
+// simple shell OS 1 project
+// rewrite in Rust later
 
 #include <stdio.h>
 #include <string.h>
